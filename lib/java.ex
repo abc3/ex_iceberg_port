@@ -12,7 +12,7 @@ defmodule ExIcebergPort.Java do
   def start_link(opts), do: GenServer.start_link(__MODULE__, [opts], name: __MODULE__)
 
   def send(msg) when is_map(msg) do
-    GenServer.call(Port, {:send, Jason.encode!(msg)})
+    GenServer.call(__MODULE__, {:send, Jason.encode!(msg)})
   end
 
   ## ------------------------------------------------------------------
