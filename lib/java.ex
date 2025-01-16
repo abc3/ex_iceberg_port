@@ -12,7 +12,7 @@ defmodule ExIcebergPort.Java do
   def start_link(opts), do: GenServer.start_link(__MODULE__, [opts], name: __MODULE__)
 
   def send(msg) when is_map(msg) do
-    GenServer.call(__MODULE__, {:send, Jason.encode!(msg)})
+    GenServer.call(__MODULE__, {:send, Jason.encode!(msg)}, 60_000)
   end
 
   ## ------------------------------------------------------------------
@@ -22,7 +22,7 @@ defmodule ExIcebergPort.Java do
   def init(_) do
     Process.flag(:trap_exit, true)
 
-    cmd = "mvn -f java/pom.xml compile exec:java -Dexec.mainClass='io.experiment.App'"
+    cmd = "mvn -f java/pom.xml compile exec:java -Dexec.mainClass='io.experiment.AppS3'"
 
     Logger.info("Starting Java process with command: #{cmd}")
 
