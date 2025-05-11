@@ -28,3 +28,5 @@ ex_iceberg_port-*.tar
 /iceberg_warehouse
 
 /java/target
+
+/metastore_db
