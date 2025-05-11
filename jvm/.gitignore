@@ -49,3 +49,5 @@ build/
 /project
 
 .sbt
+
+README.md

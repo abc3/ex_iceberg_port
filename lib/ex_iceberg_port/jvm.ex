@@ -24,6 +24,7 @@ defmodule ExIcebergPort.Jvm do
   @impl true
   def init(opts) do
     with {:ok, warehouse_path} <- validate_option(opts, :warehouse_path),
+         _ <- File.mkdir_p(warehouse_path),
          {:ok, catalog_name} <- validate_option(opts, :catalog_name) do
       Process.flag(:trap_exit, true)
 
