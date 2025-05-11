@@ -1,6 +1,6 @@
 # ExIcebergPort
 
-Iceberg implementation for Elixir using Spark
+Apache Iceberg port for Elixir applications, providing SQL interface through Apache Spark
 
 ## Requirements
 
