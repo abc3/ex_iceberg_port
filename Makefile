@@ -1,13 +1,10 @@
-.PHONY: bench
+.PHONY: bench help jvm dev
 
 help:
 	@make -qpRr | egrep -e '^[a-z].*:$$' | sed -e 's~:~~g' | sort
 
-java_install_deps:
-	cd java && mvn clean install
-
-java_compile:
-	cd java && mvn compile
+jvm:
+	cd jvm && sbt clean assembly && cd ..
 
 dev:
 	ERL_AFLAGS="-kernel shell_history enabled" iex --name node@127.0.0.1 --cookie cookie -S mix
