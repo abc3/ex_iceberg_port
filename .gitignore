@@ -25,6 +25,4 @@ ex_iceberg_port-*.tar
 # Temporary files, for example, from tests.
 /tmp/
 
-/iceberg_warehouse
-
-/java/target
+/dev-warehouse
