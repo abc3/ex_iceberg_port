@@ -27,9 +27,15 @@ java -version
 Before using the library, you need to build the JVM component:
 
 ```bash
-cd jvm
-sbt clean assembly
-cd ..
+make jvm
+```
+
+## Development
+
+To start the application in development mode with IEx shell:
+
+```bash
+make dev
 ```
 
 ## Usage
