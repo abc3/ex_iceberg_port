@@ -15,7 +15,7 @@ defmodule ExIcebergPort do
 
   def dummy_start() do
     opts = %{
-      warehouse_path: "./dev-warehouse",
+      warehouse_path: "#{File.cwd!()}/dev-warehouse",
       catalog_name: "local",
       executors_count: 4
     }
