@@ -22,6 +22,7 @@ object Main {
       .config("spark.hadoop.fs.defaultFS", "file:///")
       .config("spark.hadoop.fs.hdfs.impl", "org.apache.hadoop.fs.LocalFileSystem")
       .config("spark.hadoop.mapreduce.fileoutputcommitter.marksuccessfuljobs", "false")
+      .config("spark.sql.iceberg.write.target-file-size-bytes", "134217728")
       .getOrCreate()
 
     val objectMapper = new ObjectMapper()
@@ -48,9 +49,11 @@ object Main {
               val rows = result.collect().map(row => row.toSeq.toArray)
               val num_rows = rows.length
               
-              println(objectMapper.writeValueAsString(CommandResponse(columns, num_rows, rows)))
+              val response = CommandResponse(columns, num_rows, rows)
+              println(objectMapper.writeValueAsString(response))
             } else {
-              println(objectMapper.writeValueAsString(ErrorResponse(s"Unknown command: ${sqlCommand.command}")))
+              val errorResponse = ErrorResponse(s"Unknown command: ${sqlCommand.command}")
+              println(objectMapper.writeValueAsString(errorResponse))
             }
           } catch {
             case e: Exception =>
