@@ -83,7 +83,7 @@ defmodule ExIcebergPort.Jvm do
         "java",
         Enum.join(spark_configs, " "),
         "-jar",
-        jvm_path() |> Path.join("target/scala-2.13/ice-assembly-0.1.0-SNAPSHOT.jar"),
+        Path.join(jvm_path(), "target/scala-2.13/ice-assembly-0.1.0-SNAPSHOT.jar"),
         state.warehouse_path,
         state.catalog_name,
         to_string(state.executors_count)
