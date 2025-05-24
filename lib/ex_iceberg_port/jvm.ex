@@ -15,6 +15,9 @@ defmodule ExIcebergPort.Jvm do
   def query(sql, timeout \\ :timer.seconds(25)),
     do: GenServer.call(__MODULE__, {:query, sql}, timeout)
 
+  def df(df, timeout \\ :timer.seconds(25)),
+    do: GenServer.call(__MODULE__, {:df, df}, timeout)
+
   def stop(timeout \\ :timer.seconds(25)), do: GenServer.stop(__MODULE__, timeout)
 
   ## ------------------------------------------------------------------
@@ -76,7 +79,16 @@ defmodule ExIcebergPort.Jvm do
     ]
 
     cmd =
-      "java #{Enum.join(spark_configs, " ")} -jar #{jvm_path()}/target/scala-2.13/ice-assembly-0.1.0-SNAPSHOT.jar #{state.warehouse_path} #{state.catalog_name} #{state.executors_count}"
+      [
+        "java",
+        Enum.join(spark_configs, " "),
+        "-jar",
+        jvm_path() |> Path.join("target/scala-2.13/ice-assembly-0.1.0-SNAPSHOT.jar"),
+        state.warehouse_path,
+        state.catalog_name,
+        to_string(state.executors_count)
+      ]
+      |> Enum.join(" ")
 
     Logger.info("Starting JVM process with command: #{cmd}")
 
@@ -95,6 +107,11 @@ defmodule ExIcebergPort.Jvm do
   def handle_call({:query, sql}, from, %{status: :idle} = state) do
     send_sql_command(state.port, sql)
     {:noreply, %{state | caller: from, status: :busy, requested_at: ts(), sql: sql}}
+  end
+
+  def handle_call({:df, df}, from, %{status: :idle} = state) do
+    send_df_command(state.port, df)
+    {:noreply, %{state | caller: from, status: :busy, requested_at: ts()}}
   end
 
   def handle_call({:query, sql}, from, %{status: :busy} = state) do
@@ -192,6 +209,19 @@ defmodule ExIcebergPort.Jvm do
   @spec send_sql_command(port(), String.t()) :: boolean()
   defp send_sql_command(port, sql) do
     msg = Jason.encode!(%{command: "sql", sql: sql})
+    Port.command(port, [msg, "\n"])
+  end
+
+  defp send_df_command(port, df) do
+    msg =
+      %{
+        command: "dataframe",
+        schema: df.schema,
+        data: df.data,
+        table: df.table
+      }
+      |> Jason.encode!()
+
     Port.command(port, [msg, "\n"])
   end
 

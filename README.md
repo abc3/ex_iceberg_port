@@ -137,3 +137,42 @@ Note: Always ensure you have a backup before running maintenance operations, and
 | Local Catalog  | ✅     | Hadoop-based local filesystem catalog          |
 | AWS S3 Catalog | 🔄     | Store tables in S3 buckets (Coming soon)       |
 | REST Catalog   | 🔄     | Use Iceberg REST catalog service (Coming soon) |
+
+### DataFrame Operations
+
+Create and write a DataFrame to an Iceberg table:
+
+```elixir
+iex> ExIcebergPort.dummy_df
+{:ok,
+ %ExIcebergPort.Result{
+   columns: ["id", "name", "age"],
+   rows: [],
+   num_rows: 2,
+   exec_time_ms: 207
+ }}
+```
+
+### SQL Queries
+
+Query data from Iceberg tables using SQL:
+
+```elixir
+iex> ExIcebergPort.query("select * from local.db.my_table")
+{:ok,
+ %ExIcebergPort.Result{
+   sql: "select * from local.db.my_table",
+   columns: ["id", "name", "age"],
+   rows: [[1, "John_529", 18], [2, "Jane_595", 81]],
+   num_rows: 2,
+   exec_time_ms: 84
+ }}
+```
+
+The result includes:
+
+- `columns`: List of column names
+- `rows`: List of data rows
+- `num_rows`: Number of rows returned
+- `exec_time_ms`: Query execution time in milliseconds
+- `sql`: The SQL query that was executed (for SQL queries only)
