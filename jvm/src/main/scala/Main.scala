@@ -4,12 +4,12 @@ import io.experiment.{DataCommand, ReadyResponse, CommandResponse, ErrorResponse
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.{LongType, IntegerType, StringType, DoubleType, BooleanType, TimestampType, StructType, StructField}
-import org.apache.spark.sql.functions.col
 
 import scala.io.StdIn
 import scala.util.{Try, Success, Failure}
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.ArrayList
 
 object Main {
   def main(args: Array[String]): Unit = {
@@ -65,14 +65,23 @@ object Main {
                 val data = dataCommand.data.getOrElse(throw new IllegalArgumentException("Data is required for DataFrame command"))
                 val table = dataCommand.table.getOrElse(throw new IllegalArgumentException("Table name is required for DataFrame command"))
                 
-                val rows = data.map(row => ColumnDefinition.convertRow(row, schema))
-                val df = spark.createDataFrame(spark.sparkContext.parallelize(rows), schema)
-                df.write.insertInto(table)
+                val javaRows = new ArrayList[Row]()
+                data.foreach { row =>
+                  val convertedValues = row.zipWithIndex.map { case (value, idx) =>
+                    val field = schema.fields(idx)
+                    ColumnDefinition.convertValue(value, field.dataType, field.name)
+                  }
+                  javaRows.add(Row.fromSeq(convertedValues))
+                }
+                
+                spark.createDataFrame(javaRows, schema)
+                  .writeTo(table)
+                  .append()
                 
                 val response = CommandResponse(
                   columns = schema.fieldNames.toSeq,
-                  num_rows = df.count(),
-                  rows = Array.empty 
+                  num_rows = data.length,
+                  rows = Array.empty
                 )
                 println(objectMapper.writeValueAsString(response))
                 
