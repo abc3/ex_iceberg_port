@@ -87,16 +87,20 @@ ExIcebergPort.query("SELECT * FROM local.db.my_table.snapshots")
 
 #### Compact Table Files
 
-To optimize table performance by compacting small files into larger ones:
+To optimize table performance by rewriting and compacting the table data:
 
 ```elixir
 ExIcebergPort.query("""
-  CALL catalog_name.system.rewrite_data_files(
-    table => 'local.db.my_table',
-    strategy => 'binpack'
-  )
+  INSERT OVERWRITE TABLE local.db.my_table
+  SELECT * FROM local.db.my_table
 """)
 ```
+
+This operation will rewrite the table data, which helps to:
+
+- Compact small files into larger ones
+- Remove deleted records
+- Optimize the table's physical layout
 
 #### Expire Old Snapshots
 
