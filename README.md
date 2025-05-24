@@ -75,6 +75,57 @@ To select rows, use the following command:
 ExIcebergPort.query("SELECT * FROM local.db.my_table")
 ```
 
+### Table Maintenance Operations
+
+#### List Snapshots
+
+View all snapshots (versions) of a table:
+
+```elixir
+ExIcebergPort.query("SELECT * FROM local.db.my_table.snapshots")
+```
+
+#### Compact Table Files
+
+To optimize table performance by compacting small files into larger ones:
+
+```elixir
+ExIcebergPort.query("""
+  CALL catalog_name.system.rewrite_data_files(
+    table => 'local.db.my_table',
+    strategy => 'binpack'
+  )
+""")
+```
+
+#### Expire Old Snapshots
+
+Remove old snapshots to free up storage space. This operation is safe as it only removes snapshots that are no longer needed for time travel queries:
+
+```elixir
+ExIcebergPort.query("""
+  CALL catalog_name.system.expire_snapshots(
+    table => 'local.db.my_table',
+    older_than => TIMESTAMP '2025-05-24 00:00:00'
+  )
+""")
+```
+
+#### Remove Orphan Files
+
+After expiring snapshots, you can physically delete unreferenced files to reclaim storage space. This operation should be run after `expire_snapshots`:
+
+```elixir
+ExIcebergPort.query("""
+  CALL catalog_name.system.remove_orphan_files(
+    table => 'local.db.my_table',
+    older_than => TIMESTAMP '2025-05-24 00:00:00'
+  )
+""")
+```
+
+Note: Always ensure you have a backup before running maintenance operations, and verify the `older_than` timestamp carefully to avoid removing data that might still be needed.
+
 ## Catalog Support
 
 | Catalog Type   | Status | Description                                    |
