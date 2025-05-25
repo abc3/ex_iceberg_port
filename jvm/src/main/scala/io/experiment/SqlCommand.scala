@@ -53,11 +53,15 @@ object ColumnDefinition {
   def convertValue(value: Any, dataType: DataType, columnName: String): Any = {
     (value, dataType) match {
       case (null, _) => null
-      case (v: Number, LongType) => v.longValue()
-      case (v: Number, IntegerType) => v.intValue()
-      case (v: Number, DoubleType) => v.doubleValue()
       case (v: String, StringType) => v
-      case (v: Boolean, BooleanType) => v
+      case (v: String, LongType) => v.trim.toLong
+      case (v: String, IntegerType) => v.trim.toInt
+      case (v: String, DoubleType) => v.trim.toDouble
+      case (v: String, BooleanType) => v.trim.toLowerCase match {
+        case "true" | "t" | "yes" | "y" | "1" => true
+        case "false" | "f" | "no" | "n" | "0" => false
+        case other => throw new IllegalArgumentException(s"Invalid boolean value '$other' for column $columnName")
+      }
       case (v: String, TimestampType) => java.sql.Timestamp.valueOf(v)
       case (v, t) => throw new IllegalArgumentException(s"Unsupported value type ${v.getClass} for schema type $t in column $columnName")
     }

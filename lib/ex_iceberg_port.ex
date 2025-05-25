@@ -33,8 +33,8 @@ defmodule ExIcebergPort do
         %{"column" => "age", "type" => "int8", "max_length" => nil, "null?" => true}
       ],
       data: [
-        [1, "John_#{:rand.uniform(1000)}", :rand.uniform(100)],
-        [2, "Jane_#{:rand.uniform(1000)}", :rand.uniform(100)]
+        ["1", "John_#{:rand.uniform(1000)}", "#{:rand.uniform(100)}"],
+        ["2", "Jane_#{:rand.uniform(1000)}", "#{:rand.uniform(100)}"]
       ],
       table: "local.db.my_table"
     }
